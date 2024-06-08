@@ -1,0 +1,5 @@
+{
+    "question": "Explain why the following code does not compile: System.out.println(\"Hello, world!\")",
+    "answer": "The statement is missing a semicolon at the end.",
+    "intent": "The student should be able to recognize common syntax errors that would cause compiler errors"
+}

@@ -1,0 +1,19 @@
+{
+    "intent": "This exam is intended to test the student's knowledge of Java syntax. Students are just starting to learn Java, so the difficulty of questions should remain appropriate for their level of experience.",
+    "questions": [
+        {
+            "question": "Write a loop that prints out the contents of an integer array named\"nums\".",
+            "answer": "for (int i = 0; i < nums.length; i++) { System.out.println(nums[i]); }",
+            "intent": "The student should understand how to access each element of an array whose size they do not know, and perform simple operations using each element."
+        },
+        {
+            "question": "Explain why the following code does not compile: System.out.println(\"Hello, world!\")",
+            "answer": "The statement is missing a semicolon at the end.",
+            "intent": "The student should be able to recognize common syntax errors that would cause compiler errors"
+        },
+        {
+            "question": "Write a method that uses binary search to find the index of an element in an array of integers. If the element is not present, return -1. You may assume the array is sorted.",
+            "intent": "The student should be able to implement efficient search algorithms"
+        }
+    ]
+}
