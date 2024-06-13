@@ -12,35 +12,31 @@ import json
 
 load_dotenv()
 
-#set_debug(True)
+@tool
+def submit_new_question(question) -> str:
+    """
+        Submits a single new question.
+        The parameter should be the text of the question itself. Nothing more, nothing less.
+        After using this tool, you MUST also submit a sample answer to your question, via \"submit_new_answer\".
+        THIS TOOL SHOULD ONLY BE USED ONCE!
+    """
+    return "Question submitted successfully. Step 2 is now **complete**, please move to step 3."
 
 @tool
-def submit_data(exam_data: str) -> str:
+def submit_new_answer(answer) -> str:
     """
-        Submits data for the new, personalized exam.
-        
-        The action input should contain a serialized json string, formatted the same as the original exam, but with the new question(s).
-        Note that the input MUST be inside quotes, as it is a string, NOT an object.
-        
-        The tool will return a string with further instructions.
-        Please be mindful of escaped quotation marks to ensure proper JSON syntax.
+        Submits a sample answer to the question submitted via \"submit_new_question\".
+        The parameter should be the text of the answer.
+        You may only use this tool AFTER submitting a question.
+        THIS TOOL SHOULD ONLY BE USED ONCE!
     """
-
-    # print(type(exam_data))
-    
-    try:
-        json.loads(exam_data)
-    except:
-        return "JSON syntax is invalid. Please fix it."
-    
-    # print(exam_data)
-    return "JSON syntax is correct. No further action is necessary."
-
+    return "Answer submitted successfully. No further action required. You are **done**!"
 
 api_key = os.getenv("GROQ_API_KEY")
 
 llm = ChatGroq(temperature=0.9, groq_api_key=api_key, model_name="llama3-70b-8192")
-tools = load_tools(['wikipedia'], llm=llm) + [submit_data]
+#tools = load_tools(['wikipedia'], llm=llm) + [submit_new_question, submit_new_answer]
+tools = [submit_new_question, submit_new_answer]
 
 agent = initialize_agent(
     tools,
@@ -50,25 +46,33 @@ agent = initialize_agent(
     verbose=True
 )
 
-prompt = """
-    You will be given a sample exam in JSON format.
-    Your task is to create a personalized exam, based on the sample, so that they cannot cheat by sharing answers.
+question_prompt = """
+    Please generate a variation of this question such that it tests a student's knowledge of the same topic, but different enough that the answer cannot be shared with other students to cheat.
+    For instance, if the question asks the student to add two numbers, an appropriate variation may ask the student to subtract, multiply or divide two different numbers.
 
-    The personalized exam should contain variations of the questions in the original exam, which are different enough that the answer will look substantially different from the original question, but will test the student's knowledge on the same topic.
-    For instance, if the question asks the student to identify a syntax error, the question variation shouldn't have the same syntax error as the original.
+    Your task is to create personalized exam questions based on a given sample.
+    If you are only given one question, you should only produce a single variant.
+    The personalized questions should be similar enough to the original to test a student's knowledge of the same topic, but different enough that students cannut cheat by sharing answers.
+    For instance, if the question asks the student to add two numbers, an appropriate variation may ask the student to subtract, multiply or divide two different numbers.
 
-    The personalized questions should be as clear as the originals, so that they do not confuse the student.
+    After creating the question, you MUST also provide a sample answer, formatted like what was provided with the original question.
 
-    BEFORE submitting the personalized exam, review the contents and try and answer the questions yourself (if an answer is written, ignore it and work through the question on your own).
-    If the questions are misleading, or otherwise inappropriate compard to the originals, adjust it.
+    In summary, complete the following steps:
+    1. Analyze the question to ensure you understand it.
+    2. Create a variant of the given question.
+    3. Solve the new question yourself, then submit your answer (**using the \"submit_new_answer\" tool!**). It should be formatted like the answer to the initial question.
 
-    Do NOT submit a final answer until your JSON syntax is valid.
+    After you have created a new question and answer, no further action is required. Do NOT submit multiple questions or answers.
 
-    Below is the sample exam:
-    {exam}
+    If you fail to use the \"submit_new_answer\" tool to provide your final answer, the task will be considered a failure.
+    
+    QUESTION: {question}
+
+    ANSWER: {answer}
 """
 
-with open("question.json", "r") as file:
-    sample_exam = file.read()
-
-agent(prompt.format(exam=sample_exam))
+with open("exam.json", "r") as file:
+    exam = json.loads(file.read())
+    for q in exam['questions']:
+        print(f"---\nQUESTION: {q['question']}\n---")
+        agent(question_prompt.format(question=q['question'], answer=q['answer']))
