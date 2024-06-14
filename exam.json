@@ -1,5 +1,4 @@
 {
-    "intent": "This exam is intended to test the student's knowledge of Java syntax. Students are just starting to learn Java, so the difficulty of questions should remain appropriate for their level of experience.",
     "questions": [
         {
             "question": "Write a loop that prints out the contents of an integer array named \"nums\".",

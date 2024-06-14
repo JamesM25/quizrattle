@@ -1,11 +1,6 @@
 from langchain_groq import ChatGroq
-from langchain.agents import AgentType, initialize_agent, tool, load_tools
-from langchain.prompts import PromptTemplate
-from langchain.globals import set_debug
+from langchain.agents import AgentType, initialize_agent, tool
 from dotenv import load_dotenv
-
-from langchain.tools import WikipediaQueryRun
-from langchain_community.utilities import WikipediaAPIWrapper
 
 import os
 import json
@@ -34,8 +29,7 @@ def submit_new_answer(answer) -> str:
 
 api_key = os.getenv("GROQ_API_KEY")
 
-llm = ChatGroq(temperature=0.9, groq_api_key=api_key, model_name="llama3-70b-8192")
-#tools = load_tools(['wikipedia'], llm=llm) + [submit_new_question, submit_new_answer]
+llm = ChatGroq(temperature=0.9, groq_api_key=api_key, model_name="llama3-8b-8192")
 tools = [submit_new_question, submit_new_answer]
 
 agent = initialize_agent(
@@ -74,5 +68,4 @@ question_prompt = """
 with open("exam.json", "r") as file:
     exam = json.loads(file.read())
     for q in exam['questions']:
-        print(f"---\nQUESTION: {q['question']}\n---")
         agent(question_prompt.format(question=q['question'], answer=q['answer']))
